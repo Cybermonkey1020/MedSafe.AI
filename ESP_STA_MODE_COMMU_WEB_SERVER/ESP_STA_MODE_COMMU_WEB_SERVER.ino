@@ -1,13 +1,15 @@
 #include <WiFi.h>
 #include <WebServer.h>
 
-int light;
+int num_val;
 #define ledPin 8
 
-const char* ssid = "ESP - 32 (WiFi)";
+const char* ssid = "ESP - 32 (WiFi_Mayank)";
 const char* password = "123";
 
-WebServer server(80); //Create a web server with address 80 (Arbitary)
+
+
+WebServer Server(80);  //Create a web server with address 80 (Arbitary)
 
 const char htmlpage[] PROGMEM = R"rawliteral(<!DOCTYPE html>
 <html>
@@ -29,36 +31,36 @@ const char htmlpage[] PROGMEM = R"rawliteral(<!DOCTYPE html>
 </html>
 )rawliteral";
 void handleRoot() {
-  server.send(200, "text/html",htmlpage);
+  Server.send(200, "text/html", htmlpage);
 }
 
-void slider_input(){
-    if(server.hasArg("value")){
-       light = server.arg("value").toInt(); 
-       constrain(light, 0, 255);
-       analogWrite(ledPin, light);
-    }
+void slider_input() {
+  if (Server.hasArg("value")) {
+    num_val = Server.arg("value").toInt();
+    Server.send(200, "text/plain", "Value  -" + String(num_val));
+    Serial.println(num_val);
+  } else {
+    Server.send(400, "text/plain", "Missing value");
+  }
 }
 
 void setup() {
   Serial.begin(115200);
+  // pinMode(ledPin, OUTPUT);
+  WiFi.softAP(ssid, password);
+  Serial.println("WIFI ACCESS pOINT ON");
   Serial.println(WiFi.softAPIP());
-  // ledcSetup(0, 5000, 8);  // Channel 0, 5 kHz, 8-bit resolution
-  // ledcAttachPin(ledPin, 0); 
-  pinMode(ledPin, OUTPUT);
-  WiFi.begin(ssid, password);
-  while (WiFi.status() != WL_CONNECTED) {
+  while (!WiFi.status()) {
     delay(500);
     Serial.print(".");
   }
   Serial.println("Connected to WiFi");
-  Serial.println(WiFi.localIP());
 
-  server.begin();
-  server.on("/", handleRoot);
-  server.on("/setSpeed", slider_input);
+  Server.begin();
+  Server.on("/", handleRoot);
+  Server.on("/setSpeed", slider_input);
 }
 
 void loop() {
-  server.handleClient();
+  Server.handleClient();
 }
