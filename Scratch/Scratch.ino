@@ -1,46 +1,42 @@
 #include <WiFi.h>
-#include "time.h"
+#include <WiFiUdp.h>
+#include <NTPClient.h>
 
+//Setting up the WiFi
 const char* ssid = "iPhone_13(MYNK)";
 const char* password = "12345678";
 
-const char* ntpServer = "pool.ntp.org";
-const long gmtOffset_sec = 19800; // GMT+5:30 in seconds for IST
-const int daylightOffset_sec = 0; // No daylight saving for India
+//Initialising and configuring the WiFiUDP object and NTPClient Object
+WiFiUDP ntpUDP;
+NTPClient timeClient(ntpUDP, "pool.ntp.org", 19800, 60000);  // IST
+// 19800 = GMT+5:30 (IST) in seconds
+// 60000 = update interval (ms)
 
 void setup() {
   Serial.begin(115200);
-
-  // Connect to Wi-Fi
+  WiFi.mode(WIFI_STA);  // Station mode
   WiFi.begin(ssid, password);
+
+  WiFi.disconnect();
+
+  // Checking for WiFi Connection, connected or not
+  Serial.print("Connecting to WiFi...");
   while (WiFi.status() != WL_CONNECTED) {
     delay(500);
-    Serial.print(".");
+    Serial.println(".");
+    Serial.println(WiFi.status());
   }
-  Serial.println("\nWiFi connected");
+  Serial.println("WiFi connected");
+  Serial.println(WiFi.localIP()); // Changed to localIP() for STA mode
 
-  // Configure and initialize SNTP
-  configTime(gmtOffset_sec, daylightOffset_sec, ntpServer);
-
-  // Print the local time
-  struct tm timeinfo;
-  if (!getLocalTime(&timeinfo)) {
-    Serial.println("Failed to obtain time");
-    return;
-  }
-  Serial.println(&timeinfo, "%A, %B %d %Y %H:%M:%S");
+  //Start the time client — set up and get ready to fetch global time
+  timeClient.begin();
 }
 
 void loop() {
-  // You don't need to call update() repeatedly.
-  // The SNTP service runs in the background.
-  delay(5000);
+  //Updates the current time
+  timeClient.update();
 
-  // You can check the time whenever you need it
-  struct tm timeinfo;
-  if (!getLocalTime(&timeinfo)) {
-    Serial.println("Failed to obtain time");
-    return;
-  }
-  Serial.println(&timeinfo, "%H:%M:%S");
+  Serial.println(timeClient.getFormattedTime());  // e.g., "14:45:12"
+  delay(1000);
 }
