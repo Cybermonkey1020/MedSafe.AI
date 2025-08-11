@@ -1,0 +1,36 @@
+#include <WiFi.h>
+#include <WiFiUdp.h>
+#include <NTPClient.h>
+
+//Setting up the WiFi
+const char* ssid     = "YOUR_SSID";
+const char* password = "YOUR_PASSWORD";
+
+//Initialising and configuring the WiFiUDP object and NTPClient Object
+WiFiUDP ntpUDP;
+NTPClient timeClient(ntpUDP, "pool.ntp.org", 19800, 60000); // IST
+// 19800 = GMT+5:30 (IST) in seconds
+// 60000 = update interval (ms)
+
+void setup() {
+  Serial.begin(115200);
+  WiFi.begin(ssid, password);
+
+//   Checking for WiFi Connection, connected or not
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(500);
+    Serial.print(".");
+  }
+  Serial.println("WiFi connected");
+
+//Start the time client — set up and get ready to fetch global time
+  timeClient.begin();
+}
+
+void loop() {
+//Updates the current tiem
+  timeClient.update();
+
+  Serial.println(timeClient.getFormattedTime()); // e.g., "14:45:12"
+  delay(1000);
+}
