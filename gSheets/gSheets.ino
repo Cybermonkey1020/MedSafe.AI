@@ -5,8 +5,8 @@
 #define BUTTON1 2
 #define BUTTON2 16
 
-const char* ssid = "iPhone_13(MYNK)";
-const char* password = "12345678";
+const char* ssid = "Oogway";
+const char* password = "1234567890";
 char formattedTimeStr[30]; 
 struct tm timeinfo;
 
@@ -15,7 +15,7 @@ const long gmtOffset_sec = 19800; // GMT+5:30 in seconds for IST
 const int daylightOffset_sec = 0; // No daylight saving for India
 
 // Google Apps Script Web App URL
-const char* serverName = "https://script.google.com/macros/s/AKfycbwNPOxWf8AU5l84nHr6_0kGnOhp8NebiTAL3PmGlNm2nX3KeLh2_IbaG0lsPEsYef2HIg/exec";
+const char* serverName = "https://script.google.com/macros/s/AKfycbxZ4tyBu5PILGXA8vaetcjHYbqF0f0B380dSxG-Pnqq-1RhV9-xLSWJr7kTeBtQJ8Np7g/exec";
 
 void setup(){
    Serial.begin(115200);
@@ -38,7 +38,7 @@ void setup(){
   // Print the local time
   if (!getLocalTime(&timeinfo)) {
    Serial.println("Failed to obtain time");
-   delay(2000);
+   delay(500);
    return;
   }
   Serial.println(&timeinfo, "%A, %B %d %Y %H:%M:%S");
@@ -53,7 +53,7 @@ void loop(){
       // Get latest time before sending
       if (!getLocalTime(&timeinfo)) {
       Serial.println("Failed to obtain time for upload. Skipping this upload."); // Changed message
-      delay(5000); // Wait before trying again
+      delay(500); // Wait before trying again
       return; 
       }
 
@@ -64,9 +64,10 @@ void loop(){
 
       // Prepare JSON payload with SNTP time and button state
       String jsonData = "{\"method\":\"append\","
-                      "\"med1\":true,"
-                      "\"med2\":false,"
-                      "\"med3\":true,"
+                      "\"Med1\":true,"
+                      "\"Med2\":false,"
+                      "\"Med3\":true,"
+                      "\"Med4\":true,"
                       "\"timestamp\":\"" + formattedTime + "\","
                       "\"buttonState\":true}";
 
